@@ -46,9 +46,14 @@ export class AppointmentsService {
     const nextAppointmentDate = dto.appointmentDate ?? appointment.appointmentDate;
     const nextStartTime = dto.startTime ?? appointment.startTime;
     const nextEndTime = dto.endTime !== undefined ? dto.endTime : appointment.endTime;
+    const nextStatus = dto.status ?? appointment.status;
 
-    validateAppointmentSchedule(nextAppointmentDate, nextStartTime, nextEndTime);
-    await this.validateAvailableSlot(userId, nextAppointmentDate, nextStartTime, nextEndTime, appointment.id);
+    validateAppointmentSchedule(nextAppointmentDate, nextStartTime, nextEndTime, {
+      allowPast: nextStatus === AppointmentStatus.Cancelled,
+    });
+    if (nextStatus !== AppointmentStatus.Cancelled) {
+      await this.validateAvailableSlot(userId, nextAppointmentDate, nextStartTime, nextEndTime, appointment.id);
+    }
 
     Object.assign(appointment, {
       ...(dto.title !== undefined ? { title: dto.title } : {}),
@@ -89,12 +94,17 @@ export class AppointmentsService {
   }
 }
 
-function validateAppointmentSchedule(appointmentDate: string, startTime: string, endTime?: string | null) {
+function validateAppointmentSchedule(
+  appointmentDate: string,
+  startTime: string,
+  endTime?: string | null,
+  options: { allowPast?: boolean } = {},
+) {
   validateDateKey(appointmentDate);
   validateTimeKey(startTime, 'Start time');
   if (endTime) validateTimeKey(endTime, 'End time');
 
-  if (appointmentDate < todayKey()) {
+  if (!options.allowPast && appointmentDate < todayKey()) {
     throw new BadRequestException('Appointment date cannot be in the past');
   }
 
@@ -123,7 +133,7 @@ function validateDateKey(value: string) {
 }
 
 function validateTimeKey(value: string, label: string) {
-  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) {
+  if (!/^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/.test(value)) {
     throw new BadRequestException(`${label} must be a valid HH:mm time`);
   }
 }

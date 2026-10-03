@@ -5,6 +5,7 @@
   "scripts": {
     "start": "nest start",
     "start:dev": "nest start --watch",
+    "start:prod": "node dist/main.js",
     "build": "nest build",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/database/data-source.ts"
   },

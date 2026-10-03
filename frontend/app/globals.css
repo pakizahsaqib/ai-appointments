@@ -2232,7 +2232,7 @@ button.appointment-list-summary,
   background: #dbeafe;
 }
 
-@media (min-width: 641px) {
+@media (min-width: 841px) {
   .appointment-list-action {
     display: none;
   }
