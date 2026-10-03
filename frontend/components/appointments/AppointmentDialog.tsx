@@ -281,7 +281,7 @@ function TimePicker({
           </div>
         ) : null}
       </div>
-      <small className={`field-error min-h-[2.7em] ${error ? '' : 'invisible'}`} aria-hidden={!error}>{error ?? 'No error'}</small> 
+      <small className={`field-error min-h-[1.2em] ${error ? '' : 'invisible'}`} aria-hidden={!error}>{error ?? 'No error'}</small> 
     </div>
   );
 }
